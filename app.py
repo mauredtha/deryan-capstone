@@ -13,12 +13,12 @@ from sklearn.metrics import classification_report
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 
-import ssl
-import certifi
-from urllib.request import urlopen
+#import ssl
+#import certifi
+#from urllib.request import urlopen
 
-request = "http://localhost:8501"
-urlopen(request, context=ssl.create_default_context(cafile=certifi.where()))
+#request = "http://localhost:8501"
+#urlopen(request, context=ssl.create_default_context(cafile=certifi.where()))
 
 st.set_page_config(layout="wide")
 

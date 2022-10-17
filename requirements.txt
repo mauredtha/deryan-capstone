@@ -1,1 +1,10 @@
 plotly
+matplotlib
+numpy
+seasonal_decompose
+DecisionTreeClassifier
+LogisticRegression
+classification_report
+accuracy_score
+train_test_split
+scikit-learn
