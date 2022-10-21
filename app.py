@@ -13,13 +13,6 @@ from sklearn.metrics import classification_report
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 
-#import ssl
-#import certifi
-#from urllib.request import urlopen
-
-#request = "http://localhost:8501"
-#urlopen(request, context=ssl.create_default_context(cafile=certifi.where()))
-
 st.set_page_config(layout="wide")
 
 st.title("Analisa Cuaca Harian Jakarta")
@@ -72,26 +65,17 @@ intensitas = df.groupby(['nama_wilayah','year','potention'])['RR'].count().reset
 
 # END CLEANSING
 
-year = st.select_slider('', [2017, 2018, 2019, 2020, 2021, 2022])
+wilayah = st.selectbox('Pilih Stasiun Cuaca', df['nama_wilayah'].unique())
 
-
-fig = px.bar(intensitas[intensitas['year'] == year], x='nama_wilayah', y='count',
-             hover_data=['potention', 'count'], color='potention',
-             labels={'potention':'Intensitas Cuaca'}, height=400)
+fig = px.bar(intensitas[intensitas['nama_wilayah'] == wilayah], x='year', y='count', hover_data=['potention', 'count'], color='potention',labels={'potention':'Intensitas Cuaca'}, height=400)
 
 st.plotly_chart(fig, use_container_width=True)
 
-st.write("Dari grafik diatas, terlihat bahwa intensitas cuaca di Jakarta cenderung berawan, hujan ringan dan hujan sedang.")
+st.markdown("Dari grafik diatas, terlihat bahwa intensitas **_cuaca di Jakarta dari tahun 2017 s/d Oktober 2022 cenderung berawan, hujan ringan dan hujan sedang._**")
 
 st.subheader("Sekarang kita lihat semua komponen cuaca harian Jakarta")
 
-
-#wilayah = st.selectbox('Pilih Stasiun Cuaca', df['nama_wilayah'].unique())
-
 col1, col2 = st.columns([1, 3])
-
-#col1.subheader("A wide column with a chart")
-wilayah = col1.selectbox('Pilih Stasiun Cuaca', df['nama_wilayah'].unique())
 
 col1.write("Keterangan :")
 col1.write("- Tavg: Temperatur rata-rata (°C)")
@@ -101,7 +85,9 @@ col1.write("- ss: Lamanya penyinaran matahari (jam)")
 col1.write("- ddd_x: Arah angin saat kecepatan maksimum (°)")
 col1.write("- ff_avg: Kecepatan angin rata-rata (m/s)")
 
-fig = px.area(df[df['nama_wilayah'] == wilayah], x='tanggal', y=['Tavg','RR','RH_avg','ss','ddd_x','ff_avg'], title='Komponen Cuaca Harian Jakarta')
+col2.write("Komponen Cuaca Harian Jakarta")
+
+fig = px.area(df[df['nama_wilayah'] == wilayah], x='tanggal', y=['Tavg','RR','RH_avg','ss','ddd_x','ff_avg'])
 
 #'Tavg', 'RHavg', 'RR', 'ss', 'ddd_x', 'ff_avg'
 
@@ -122,38 +108,92 @@ fig.update_xaxes(
 #col2.subheader("A narrow column with the data")
 col2.plotly_chart(fig, use_container_width=True)
 
+st.subheader("Apakah ada perbedaan cuaca harian di Jakarta saat sebelum pandemi dan saat pandemi?")
+
 st.write("Seperti yang kita tahu, 2 tahun terakhir hampir seluruh aktivitas di berbagai negara terhenti dikarenakan pandemi, termasuk Indonesia. Lalu, bagaimana cuaca harian di Jakarta saat sebelum pandemi dan saat pandemi? apakah ada perbedaan? ")
 
 col3, col4, col5 = st.columns([3, 3, 3])
 
-col3.write("- Pada Stasiun Cuaca Halim Perdana Kusuma, tidak ada pencatatan cuaca sejak Januari 2019. Sehingga kita hanya mengetahui bahwa sebelum pandemi :")
+col3.markdown("Note : _Pada Stasiun Cuaca Halim Perdana Kusuma, **tidak ada pencatatan cuaca sejak Januari 2019**. Sehingga kita hanya mengetahui bahwa sebelum pandemi :_")
 
-col3.write("1. rata-rata suhu pada wilayah ini yaitu 27.80°C ")
-col3.write("2. rata-rata curah hujan sebelum pandemi yaitu 5.62mm ")
-col3.write("3. rata-rata kelembapan sebelum pandemi yaitu 74.95% ")
-col3.write("4. rata-rata lamanya penyinaran matahari tidak tercatat ")
-col3.write("5. rata-rata arah angin saat kecepatan maksimum sebelum pandemi 220.83° ")
-col3.write("6. rata-rata Kecepatan angin rata-rata sebelum pandemi 3.84(m/s) ")
+halim_df = pd.DataFrame(np.array([['Suhu Rata-rata (°C)', '27.80', '-'], ['Curah Hujan Rata-rata (mm)', '5.62', '-'], ['Kelembapan Rata-rata (%)', '74.95', '-'], ['Lama Penyinaran Matahari Rata-rata (jam)', '-', '-'], ['Arah Angin Saat Kecepatan Maksimum Rata-rata (°)', '220.83', '-'], ['Kecepatan Angin Rata-rata (m/s)', '3.84', '-']]),
+                   columns=['Komponen Cuaca', 'Sebelum Pandemi', 'Saat Pandemi'])
 
-col4.write("- Pada Stasiun Cuaca Maritim Tanjung Priok, tidak ada pencatatan cuaca sejak Januari 2019. Sehingga kita hanya mengetahui bahwa sebelum pandemi, rata-rata suhu pada wilayah ini yaitu 27.80°C ")
+col3.table(halim_df)
 
-col4.write("1. rata-rata suhu sebelum pandemi yaitu 28.73°C & saat pandemi 28.65°C ")
-col4.write("2. rata-rata curah hujan sebelum pandemi yaitu 4.53mm & saat pandemi 5.87mm")
-col4.write("3. rata-rata kelembapan sebelum pandemi yaitu 75.07% & saat pandemi 78.62% ")
-col4.write("4. rata-rata lamanya penyinaran matahari sebelum pandemi 5.33 jam & saat pandemi 5.34 jam")
-col4.write("5. rata-rata arah angin saat kecepatan maksimum sebelum pandemi 162.12° & saat pandemi 175.54°")
-col4.write("6. rata-rata Kecepatan angin rata-rata sebelum pandemi 2.11(m/s) & saat pandemi 2.28(m/s) ")
+col4.write("- Pada Stasiun Cuaca Maritim Tanjung Priok : ")
 
-col5.write("- Pada Stasiun Cuaca Kemayoran, tidak ada pencatatan cuaca sejak Januari 2019. Sehingga kita hanya mengetahui bahwa sebelum pandemi, rata-rata suhu pada wilayah ini yaitu 27.80°C ")
+tanjung_df = pd.DataFrame(np.array([['Suhu Rata-rata (°C)', '28.73', '28.65'], ['Curah Hujan Rata-rata (mm)', '4.53', '5.87'], ['Kelembapan Rata-rata (%)', '75.07', '78.62'], ['Lama Penyinaran Matahari Rata-rata (jam)', '5.33', '5.34'], ['Arah Angin Saat Kecepatan Maksimum Rata-rata (°)', '162.12', '175.54'], ['Kecepatan Angin Rata-rata (m/s)', '2.11', '2.28']]),
+                   columns=['Komponen Cuaca', 'Sebelum Pandemi', 'Saat Pandemi'])
 
-col5.write("1. rata-rata suhu sebelum pandemi yaitu 28.58°C & saat pandemi 28.50°C ")
-col5.write("2. rata-rata curah hujan sebelum pandemi yaitu 4.76mm & saat pandemi 6.79mm")
-col5.write("3. rata-rata kelembapan sebelum pandemi yaitu 74.89% & saat pandemi 77.17% ")
-col5.write("4. rata-rata lamanya penyinaran matahari sebelum pandemi 4.68 jam & saat pandemi 4.14 jam")
-col5.write("5. rata-rata arah angin saat kecepatan maksimum sebelum pandemi 238.073° & saat pandemi 262.49°")
-col5.write("6. rata-rata Kecepatan angin rata-rata sebelum pandemi 1.40(m/s) & saat pandemi 1.41(m/s) ")
+col4.table(tanjung_df)
+
+col5.write("- Pada Stasiun Cuaca Kemayoran :")
+
+kemayoran_df = pd.DataFrame(np.array([['Suhu Rata-rata (°C)', '28.58', '28.50'], ['Curah Hujan Rata-rata (mm)', '4.76', '6.79'], ['Kelembapan Rata-rata (%)', '74.89', '77.17'], ['Lama Penyinaran Matahari Rata-rata (jam)', '4.68', '4.14'], ['Arah Angin Saat Kecepatan Maksimum Rata-rata (°)', '238.073', '262.49'], ['Kecepatan Angin Rata-rata (m/s)', '1.40', '1.41']]),
+                   columns=['Komponen Cuaca', 'Sebelum Pandemi', 'Saat Pandemi'])
+
+col5.table(kemayoran_df)
 
 st.markdown("Setelah kita lihat, **cuaca Jakarta tidak jauh berbeda saat sebelum pandemi dan saat pandemi**. Cuaca Jakarta cukup stabil dan menunjukkan seasonality yang jelas. Dan karena suhu hari sebelumnya dengan suhu 2 hari berikutnya tidak signifikan maka dapat dijadikan dasar untuk membuat model dengan menggunakan suhu saat ini sebagai prediksi untuk hari berikutnya.")
+
+st.subheader("Jakarta Hujan")
+
+total_hjn = df.groupby(['nama_wilayah','year','month'])['RR'].sum().reset_index(name='curah_hujan').sort_values(['year','month'], ascending=True)
+
+total_hjn['month'] = pd.to_datetime(total_hjn['month'], format='%m').dt.month_name().str.slice(stop=3)
+
+fig = px.line(total_hjn[total_hjn['nama_wilayah'] == wilayah], x="month", y="curah_hujan", color='year', markers=True)
+
+st.plotly_chart(fig, use_container_width=True)
+
+cola, colb = st.columns([3, 3])
+
+cola.markdown("# _**Awal musim hujan Jakarta diprakirakan pada bulan**_ Oktober-November dan **puncak musim hujan diprakirakan pada bulan** Januari-Februari")
+
+colb.markdown("# _**Awal musim kemarau Jakarta diprakirakan pada bulan**_ April-Mei")
+
+
+st.subheader("Apakah curah Hujan mempengaruhi banyaknya wisatawan mancanegara yang datang ke Jakarta ?")
+
+manca = pd.read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vTuRe1ZlhJY3Ps4ivcazuAiAkV5qsxSMyI5HRkAf6xKicTaFnV_8d3Vy-MJJeZEoQ/pub?output=csv")
+
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+
+# Create figure with secondary y-axis
+fig = make_subplots(specs=[[{"secondary_y": True}]])
+
+# Add traces
+fig.add_trace(
+    go.Scatter(x=manca['bulan'], y=manca['RR'], name="Curah Hujan"),
+    secondary_y=False,
+)
+
+fig.add_trace(
+    go.Scatter(x=manca['bulan'], y=manca['pengunjung_manca'], name="Wisatawan Mancanegara"),
+    secondary_y=True,
+)
+
+# Add figure title
+fig.update_layout(
+    title_text="Curah Hujan & Wisatawan Mancanegara"
+)
+
+# Set x-axis title
+fig.update_xaxes(title_text="Bulan Kunjungan di Tahun 2019")
+
+# Set y-axes titles
+fig.update_yaxes(title_text="<b>Curah Hujan</b> ", secondary_y=False)
+fig.update_yaxes(title_text="<b>Jumlah Wisatawan Mancanegara</b>", secondary_y=True)
+
+st.plotly_chart(fig, use_container_width=True)
+
+st.write("Jika dilihat pada grafik diatas, **curah hujan mempengaruhi kunjungan wisatawan mancanegara ke Jakarta**, dimana para wisatawan banyak berkunjung ketika bulan **Juni s/d September** saat curah hujan di Jakarta sedang menurun / pada saat memasuki musim kemarau di Indonesia.")
+
+########
+
+st.title("Ayo kita coba buat model prakiraan dan pengklasifikasian cuaca Jakarta!")
 
 data = df[df['nama_wilayah'] == wilayah]
 
@@ -162,6 +202,8 @@ data.set_index("tanggal", inplace=True)
 #st.dataframe(data)
 
 st.subheader("SARIMA Modeling Prakiraan Cuaca")
+
+st.write("Dari data cuaca Jakarta ini, kita dapat membuat model prakiraan dengan menggunakan suhu saat ini sebagai prediksi untuk hari berikutnya.  ")
 
 # Shift the current temperature to the next day. 
 predicted_df = data["Tavg"].to_frame().shift(1).rename(columns = {"Tavg": "Tavg_pred" })
@@ -183,7 +225,7 @@ st.write("Validasi model yang digunakan yaitu Non-Dinamis dikarenakan range data
 
 st.write("Validasi model menghasilkan Root Mean Squared Error (RMSE) / kesalahan rata-rata antara suhu yang diprediksi dan actual, hasilnya ",temp_pred_err)
 
-st.write("Data train yang digunakan berdasarkan wilayah yang dipilih sebelumnya")
+st.write("Perlu diketahui bahwa Data train yang digunakan untuk modeling berdasarkan wilayah yang dipilih sebelumnya dengan periode Januari 2017 s/d 15 Oktober 2022. Format Tanggal Prediksi : YYYY-MM-DD dan Tahun Aktual : YYYY")
 
 import itertools
 
@@ -223,128 +265,111 @@ for param in pdq:
 # Import the statsmodels library for using SARIMAX model
 import statsmodels.api as sm
 
-# Fit the SARIMAX model using optimal parameters
-mod = sm.tsa.statespace.SARIMAX(one_step_df.Tavg_actual,
-                                order=(1, 1, 1),
-                                seasonal_order=(1, 1, 1, 12),
-                                enforce_stationarity=False,
-                                enforce_invertibility=False)
+with st.form("form_modeling"):
+   tgl_start = st.text_input('Tanggal Prediksi')
+   thn_act = st.text_input('Tahun Aktual')
 
-results = mod.fit()
+   # Every form must have a submit button.
+   submitted = st.form_submit_button("Submit")
+   if submitted:
+        #if len(tgl_start) == 0 & len(thn_act) == 0 :
+        #tgl_start = '2021-03-07'
+        #thn_act = '2021'
+        # Fit the SARIMAX model using optimal parameters
+        mod = sm.tsa.statespace.SARIMAX(one_step_df.Tavg_actual,
+                                        order=(1, 1, 1),
+                                        seasonal_order=(1, 1, 1, 12),
+                                        enforce_stationarity=False,
+                                        enforce_invertibility=False)
 
-#2021-03-07T00:00:00
+        results = mod.fit()
 
-col6, col7 = st.columns([1, 3])
-
-tgl_start = col6.text_input('Tanggal Prediksi')
-thn_act = col6.text_input('Tahun Aktual')
-
-if len(tgl_start) == 0 & len(thn_act) == 0 :
-    tgl_start = '2021-03-07'
-    thn_act = '2021'
-
-pred = results.get_prediction(start=pd.to_datetime(tgl_start), dynamic=False)
-pred_ci = pred.conf_int()
-
-
-fig, ax = plt.subplots()
-ax = one_step_df.Tavg_actual[thn_act:].plot(label='observed')
-pred.predicted_mean.plot(ax=ax, label='Forecast')
-
-ax.fill_between(pred_ci.index,
-                pred_ci.iloc[:, 0],
-                pred_ci.iloc[:, 1], color='k', alpha=.2)
-
-ax.set_xlabel('Date')
-ax.set_ylabel('Temperature (in Celsius)')
-plt.ylim([-20,30])
-plt.legend()
-#plt.show()
-
-
-#st.plotly_chart(plt, use_container_width=True)
-col7.pyplot(fig)
+        #2021-03-07T00:00:00
+            
+        pred = results.get_prediction(start=pd.to_datetime(tgl_start), dynamic=False)
+        pred_ci = pred.conf_int()
+            
+        fig, ax = plt.subplots()
+        ax = one_step_df.Tavg_actual[thn_act:].plot(label='observed')
+        pred.predicted_mean.plot(ax=ax, label='Forecast')
+        ax.fill_between(pred_ci.index,
+            pred_ci.iloc[:, 0],
+            pred_ci.iloc[:, 1], color='k', alpha=.2)
+        ax.set_xlabel('Date')
+        ax.set_ylabel('Temperature (in Celsius)')
+        plt.ylim([-20,30])
+        plt.legend()
+            #plt.show()
+            # #st.plotly_chart(plt, use_container_width=True)
+        st.pyplot(fig)
+        st.write("Dari gambar diatas kita bisa lihat bahwa prakiraan temperatur cuaca selaras dengan temperatur sebenarnya dan menunjukkan siklus musiman sepanjang 365 hari. Model prakiraan ini akan lebih maksimal jika data train yang digunakan memiliki range yang cukup panjang.")
 
 
 #st.dataframe(pred.predicted_mean)
 
-#fig = px.line(one_step_df.Tavg_actual['2022':], x='Date', y=df.columns[1:-6])
-#fig = px.line(one_step_df.Tavg_actual['2022':], x=one_step_df.index, y=one_step_df.Tavg_actual, title='Time Series with Range Slider and Selectors')
-#fig = px.line(one_step_df.Tavg_actual['2022':], x=one_step_df.index, y=pred.predicted_mean, title='Time Series with Range Slider and Selectors')
-
-# Show plot 
-#st.plotly_chart(fig, use_container_width=True)
 st.subheader("Klasifikasi Intensitas Cuaca")
 
-col8, col9 = st.columns([1, 3])
+st.write("Data yang digunakan berdasarkan wilayah yang dipilih sebelumnya")
+st.write("Masukkan nilai pada setiap komponen cuaca disamping untuk melihat hasil prediksi!!")
 
-Tn = col8.text_input('Suhu Minimal')
-Tx = col8.text_input('Suhu Maksimal')
-Tavg = col8.text_input('Suhu Rata-rata')
-RH_avg = col8.text_input('Kelembapan rata-rata')
-RR = col8.text_input('Curah Hujan')
-ss = col8.text_input('lamanya penyinaran matahari')
-ff_x = col8.text_input('Kecepatan angin maksimum')
-ddd_x = col8.text_input('Arah angin kecepatan maksimum')
-ff_avg = col8.text_input('Kecepatan angin rata-rata')
+with st.form("form_klasifikasi"):
+    Tn = st.text_input('Suhu Minimal (°C)')
+    Tx = st.text_input('Suhu Maksimal (°C)')
+    Tavg = st.text_input('Suhu Rata-rata (°C)')
+    RH_avg = st.text_input('Kelembapan rata-rata (%)')
+    RR = st.text_input('Curah Hujan (mm)')
+    ss = st.text_input('lamanya penyinaran matahari (jam)')
+    ff_x = st.text_input('Kecepatan angin maksimum (m/s)')
+    ddd_x = st.text_input('Arah angin kecepatan maksimum (°)')
+    ff_avg = st.text_input('Kecepatan angin rata-rata (m/s)')
+    # Every form must have a submit button.
+    submitted = st.form_submit_button("Submit")
+    if submitted:
+            
+        dt = df[df['nama_wilayah'] == wilayah]
 
-dt = df[df['nama_wilayah'] == wilayah]
+        datas = dt.drop(['tanggal','kode_wilayah','nama_wilayah','ddd_car','color_map','year','month'], axis=1)
 
-datas = dt.drop(['tanggal','kode_wilayah','nama_wilayah','ddd_car','color_map','year','month'], axis=1)
+        #st.dataframe(datas)
 
-#st.dataframe(datas)
+        #Prepare the training set
 
-#Prepare the training set
+        # X = feature values, all the columns except the last column
+        X = datas.iloc[:, :-1]
 
-# X = feature values, all the columns except the last column
-X = datas.iloc[:, :-1]
+        # y = target values, last column of the data frame
+        y = datas.iloc[:, -1]
 
-# y = target values, last column of the data frame
-y = datas.iloc[:, -1]
+        #Split the data into 80% training and 20% testing
+        x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-#Split the data into 80% training and 20% testing
-x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+        #Train the model
+        model = DecisionTreeClassifier()
+        model.fit(x_train, y_train) #Training the model
+        
+        data_test = [[Tn, Tx, Tavg, RH_avg, RR, ss, ff_x, ddd_x, ff_avg]]
 
-#Train the model
-model = DecisionTreeClassifier()
-model.fit(x_train, y_train) #Training the model
+        df_data_test = pd.DataFrame(data_test, columns =['Tn', 'Tx', 'Tavg', 'RH_avg', 'RR', 'ss', 'ff_x', 'ddd_x', 'ff_avg'])
 
-if (len(Tn) == 0) & (len(Tx) == 0) & (len(Tavg) == 0) & (len(RH_avg) == 0) & (len(RR) == 0) & (len(ss) == 0) & (len(ff_x) == 0) & (len(ddd_x) == 0) & (len(ff_avg) == 0)   :
-    data_test = [[30.0, 30.0, 30.0, 66.0, 150.0, 6.5, 4.0, 110.0, 1.0]]
-    
-else:
-    data_test = [[Tn, Tx, Tavg, RH_avg, RR, ss, ff_x, ddd_x, ff_avg]]
+        #Test the model
+        predictions = model.predict(df_data_test)
+        y_test = predictions
 
-df_data_test = pd.DataFrame(data_test, columns =['Tn', 'Tx', 'Tavg', 'RH_avg', 'RR', 'ss', 'ff_x', 'ddd_x', 'ff_avg'])
+        akurasi = accuracy_score(y_test, predictions)
 
-#Test the model
-predictions = model.predict(df_data_test)
+        st.markdown("Klasifikasi ini menggunakan model Decision Tree Classifier dengan Akurasi Skor : " + str(akurasi))
 
-col9.markdown("Klasifikasi ini menggunakan model Decision Tree Classifier dengan Akurasi Skor : **0.9976359338061466**")
-
-col9.write("Data default prediksi yang digunakan yaitu: ")
-
-col9.dataframe(df_data_test)
-
-col9.write("Intensitas Cuaca dari data terkait yaitu " + predictions[0])
-
-col9.write("Data yang digunakan berdasarkan wilayah yang dipilih sebelumnya")
-col9.write("Masukkan nilai pada setiap komponen cuaca disamping untuk melihat hasil prediksi!!")
-
-col9.write("Keterangan :")
-col9.write("- Tavg: Temperatur rata-rata (°C)")
-col9.write("- RR: Curah hujan (mm)")
-col9.write("- RH_avg: Kelembapan rata-rata (%)")
-col9.write("- ss: Lamanya penyinaran matahari (jam)")
-col9.write("- ddd_x: Arah angin saat kecepatan maksimum (°)")
-col9.write("- ff_avg: Kecepatan angin rata-rata (m/s)")
+        st.write("Intensitas Cuaca dari data terkait yaitu " + predictions[0])
 
 
 st.subheader("Kesimpulan")
 
 st.markdown("- Dalam rentang waktu Januari 2017 s/d Oktober 2022, cuaca Jakarta cenderung **Berawan, Hujan Ringan & Hujan Sedang**")
 st.write("- Suhu Jakarta cukup stabil, tidak ada perubahan yang berarti dari sebelum dan saat pandemi")
-st.write("- Dapat melakukan prakiraan data time series menggunakan SARIMA Modeling")
+st.write("- Awal musim hujan Jakarta diprakirakan pada bulan Oktober-November dan puncak musim hujan diprakirakan pada bulan Januari-Februari")
+st.write("- Awal musim kemarau Jakarta diprakirakan pada bulan April-Mei")
+st.write("- Curah hujan mempengaruhi kunjungan wisatawan mancanegara ke Jakarta")
+st.write("- Data history cuaca dapat digunakan untuk melakukan prakiraan cuaca dengan membuat modeling prakiraan time series menggunakan SARIMA Modeling")
 st.write("- Hasil prakiraan dapat dimanfaatkan dalam kehidupan sehari hari untuk melihat kondisi cuaca hari berikutnya")
 st.write("- Dapat mengkalsifikasikan cuaca berdasarkan komponennya")
 st.write("- Hasil prakiraan dan klasifikasi data akan lebih optimal jika memeliki range yang cukup banyak")
