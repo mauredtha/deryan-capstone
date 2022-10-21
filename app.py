@@ -225,7 +225,10 @@ st.write("Validasi model yang digunakan yaitu Non-Dinamis dikarenakan range data
 
 st.write("Validasi model menghasilkan Root Mean Squared Error (RMSE) / kesalahan rata-rata antara suhu yang diprediksi dan actual, hasilnya ",temp_pred_err)
 
-st.write("Perlu diketahui bahwa Data train yang digunakan untuk modeling berdasarkan wilayah yang dipilih sebelumnya dengan periode Januari 2017 s/d 15 Oktober 2022. Format Tanggal Prediksi : YYYY-MM-DD dan Tahun Aktual : YYYY")
+st.write("Perlu diketahui bahwa Data train yang digunakan untuk modeling berdasarkan wilayah yang dipilih sebelumnya.")
+st.write("Wilayah Halim Perdana Kusuma, data yang tersedia yaitu periode Januari 2017 s/d Desember 2018. Sedangkan Kemayoran dan Tanjung Priok, data yang tersedia yaitu  periode Januari 2017 s/d 15 Oktober 2022")
+
+st.write("Format Tanggal Prediksi : YYYY-MM-DD dan Tahun Aktual : YYYY")
 
 import itertools
 
